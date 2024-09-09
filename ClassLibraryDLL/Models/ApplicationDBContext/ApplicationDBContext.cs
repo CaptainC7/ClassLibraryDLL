@@ -15,6 +15,9 @@ namespace ClassLibraryDLL.Models.ApplicationDBContext
         }
 
         public DbSet<Person> Person {  get; set; }
+        public DbSet<TaskListTemplate> TaskListTemplate { get; set; }
+        public DbSet<TaskGroup> TaskGroup { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
