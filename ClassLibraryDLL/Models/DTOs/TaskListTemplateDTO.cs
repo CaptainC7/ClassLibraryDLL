@@ -9,7 +9,8 @@ namespace ClassLibraryDLL.Models.DTOs
     public class TaskListTemplateDTO
     {
         public required string  TempName { get; set; }
-        public required int CreatedBy { get; set; }
         public required DateOnly CreatedDate { get; set; }
+        public int CreatedBy { get; set; }
+        public PersonDTO? CreatedByPerson { get; set; }
     }
 }

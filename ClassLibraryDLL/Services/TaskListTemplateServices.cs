@@ -19,11 +19,37 @@ namespace ClassLibraryDLL.Services
             _dbContext = dBContext;
         }
 
-        public async Task<IEnumerable<TaskListTemplate>> GetTemplates()
+        //public async Task<IEnumerable<TaskListTemplate>> GetTemplates()
+        //{
+        //    var templates = await _dbContext.TaskListTemplate.ToListAsync();
+        //    return templates;
+        //}
+
+        public async Task<IEnumerable<TaskListTemplateDTO>> GetAllTaskListTemplatesAsync()
         {
-            var templates = await _dbContext.TaskListTemplate.ToListAsync();
-            return templates;
+            var taskListTemplate = await _dbContext.TaskListTemplate
+                .Include(t => t.CreatedByPerson)
+                .Select(t => new TaskListTemplateDTO
+                {
+                    TempName = t.TempName,
+                    CreatedDate = t.CreatedDate,
+                    CreatedBy = t.CreatedBy,
+
+                    CreatedByPerson = new PersonDTO
+                    {
+                        FName = t.CreatedByPerson.FName,
+                        LName = t.CreatedByPerson.LName,
+                        Gender = t.CreatedByPerson.Gender,
+                        BDate = t.CreatedByPerson.BDate,
+                        Username = t.CreatedByPerson.Username,
+                        Password = t.CreatedByPerson.Password
+                    }
+                })
+                .ToListAsync();
+
+            return taskListTemplate;
         }
+
 
         public async Task<TaskListTemplateDTO> AddTemplate(TaskListTemplateDTO taskListTemplateDTO)
         {

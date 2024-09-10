@@ -24,12 +24,20 @@ namespace ClassLibraryDLL.Services
         {
             var taskGroups = await _dbContext.TaskGroup
                 .Where(taskGroup => taskGroup.TaskListTemplateID == taskListTemplateId)
+                .Include(taskGroup => taskGroup.TaskListTemplate)
                 .Select(TaskGroup => new TaskGroupDTO
                 {
                     Id = TaskGroup.Id,
                     GroupName = TaskGroup.GroupName,
                     TaskListTemplateID = TaskGroup.TaskListTemplateID,
                     GroupOrder = TaskGroup.GroupOrder,
+
+                    TaskListTemplate = new TaskListTemplateDTO
+                    {
+                        TempName = TaskGroup.TaskListTemplate.TempName,
+                        CreatedBy = TaskGroup.TaskListTemplate.CreatedBy,
+                        CreatedDate = TaskGroup.TaskListTemplate.CreatedDate,
+                    }
                 })
                 .ToListAsync();
 
@@ -83,31 +91,54 @@ namespace ClassLibraryDLL.Services
                 Id = taskGroup.Id,
                 GroupName = taskGroup.GroupName,
                 TaskListTemplateID = taskGroup.TaskListTemplateID,
-                GroupOrder = taskGroup.GroupOrder // Handle as per your trigger or logic
+                GroupOrder = taskGroup.GroupOrder
             };
         }
 
-        //public async Task<TaskListTemplate> GetTemplateByID(int ID)
+        //public async Task<bool> DeleteTaskGroupByID(int id)
         //{
-        //    var template = _dbContext.TaskListTemplate.Find(ID);
-        //    if (template == null)
+        //    var taskGroup = await _dbContext.TaskGroup.FindAsync(id);
+        //    if (taskGroup == null)
         //    {
-        //        return null;
+        //        return false;
         //    }
-        //    return template;
+
+        //    _dbContext.TaskGroup.Remove(taskGroup);
+        //    await _dbContext.SaveChangesAsync();
+        //    return true;
         //}
 
-        public async Task<bool> DeleteTaskGroupByID(int id)
+        public async Task<bool> DeleteTaskGroupAsync(int id)
         {
-            var taskGroup = await _dbContext.TaskGroup.FindAsync(id);
-            if (taskGroup == null)
+            var task = await _dbContext.TaskGroup.FindAsync(id);
+            if (task == null)
             {
-                return false;
+                return false; // Task not found
             }
 
-            _dbContext.TaskGroup.Remove(taskGroup);
+            _dbContext.TaskGroup.Remove(task);
             await _dbContext.SaveChangesAsync();
+
+            // Reorder tasks in the same group
+            await ReorderTasksAsync(task.TaskListTemplateID);
+
             return true;
+        }
+
+        private async System.Threading.Tasks.Task ReorderTasksAsync(int taskListTemplateID)
+        {
+            var tasks = await _dbContext.TaskGroup
+                .Where(t => t.TaskListTemplateID == taskListTemplateID)
+                .OrderBy(t => t.GroupOrder)
+                .ToListAsync();
+
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                tasks[i].GroupOrder = i + 1;
+            }
+
+            _dbContext.TaskGroup.UpdateRange(tasks);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

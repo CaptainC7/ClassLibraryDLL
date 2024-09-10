@@ -15,5 +15,7 @@ namespace ClassLibraryDLL.Models
         public DateOnly BDate { get; set; }
         public string Username { get; set; } = "";
         public string Password { get; set; } = "";
+        public ICollection<TaskListTemplate> CreatedTaskListTemplates { get; set; } = new List<TaskListTemplate>();
+        public ICollection<TaskListInstance> AssignedTaskListInstances { get; set; }
     }
 }

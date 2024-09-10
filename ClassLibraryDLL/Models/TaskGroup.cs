@@ -13,5 +13,6 @@ namespace ClassLibraryDLL.Models
         public int TaskListTemplateID { get; set; }
         public TaskListTemplate TaskListTemplate { get; set; }
         public int GroupOrder { get; set; }
+        public ICollection<Task> Tasks { get; set; }
     }
 }
