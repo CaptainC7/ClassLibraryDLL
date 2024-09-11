@@ -19,6 +19,8 @@ namespace ClassLibraryDLL.Models.ApplicationDBContext
         public DbSet<TaskGroup> TaskGroup { get; set; }
         public DbSet<Task> Task { get; set; }
         public DbSet<TaskListInstance> TaskListInstance { get; set; }
+        public DbSet<TaskGroupInstance> TaskGroupInstance { get; set; }
+        public DbSet<TaskInstance> taskInstance { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,6 +44,34 @@ namespace ClassLibraryDLL.Models.ApplicationDBContext
                 .WithMany(p => p.AssignedTaskListInstances)
                 .HasForeignKey(tli => tli.AssignedTo)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskGroupInstance>()
+            .HasOne(tgi => tgi.TaskGroup)
+            .WithMany(tg => tg.TaskGroupInstances)
+            .HasForeignKey(tgi => tgi.TaskGroupID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskGroupInstance>()
+                .HasOne(tgi => tgi.TaskListInstance)
+                .WithMany(tli => tli.TaskGroupInstances)
+                .HasForeignKey(tgi => tgi.TaskListInstanceID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskGroupInstance>()
+                .HasOne(tgi => tgi.AssignedPerson)
+                .WithMany(p => p.TaskGroupInstances)
+                .HasForeignKey(tgi => tgi.AssignedTo)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskInstance>()
+            .HasOne(ti => ti.Task)
+            .WithMany(t => t.TaskInstances)
+            .HasForeignKey(ti => ti.TaskID);
+
+            modelBuilder.Entity<TaskInstance>()
+                .HasOne(ti => ti.TaskGroupInstance)
+                .WithMany(tgi => tgi.TaskInstances)
+                .HasForeignKey(ti => ti.TaskGroupInstanceID);
 
             base.OnModelCreating(modelBuilder);
         }

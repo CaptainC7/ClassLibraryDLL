@@ -8,9 +8,10 @@ namespace ClassLibraryDLL.Models.DTOs
 {
     public class AddTaskListInstanceDTO
     {
-        public int TaskListTemplateID { get; set; }
-        public DateTime StartDate { get; set; }
-        public int AssignedTo { get; set; }
-        public DateTime DueDate { get; set; }
+        public required int TaskListTemplateID { get; set; }
+        public required DateTime StartDate { get; set; }
+        public required int AssignedTo { get; set; }
+        public required DateTime DueDate { get; set; }
+        public required string Status { get; set; }
     }
 }

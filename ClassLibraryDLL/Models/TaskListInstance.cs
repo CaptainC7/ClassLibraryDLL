@@ -10,11 +10,12 @@ namespace ClassLibraryDLL.Models
     {
         public int ID { get; set; }
         public int TaskListTemplateID { get; set; }
-        public TaskListTemplate TaskListTemplate { get; set; }
+        public TaskListTemplate? TaskListTemplate { get; set; }
         public DateTime StartDate { get; set; }
         public int AssignedTo { get; set; }
-        public Person AssignedPerson { get; set; }
-        public string Status { get; set; }
+        public Person? AssignedPerson { get; set; }
+        public string? Status { get; set; }
         public DateTime DueDate { get; set; }
+        public ICollection<TaskGroupInstance> TaskGroupInstances { get; set; } = new List<TaskGroupInstance>();
     }
 }

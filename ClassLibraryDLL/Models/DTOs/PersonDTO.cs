@@ -8,11 +8,11 @@ namespace ClassLibraryDLL.Models.DTOs
 {
     public class PersonDTO
     {
-        public required string FName { get; set; }
-        public required string LName { get; set; }
-        public required string Gender { get; set; }
-        public required DateOnly BDate { get; set; }
-        public required string Username { get; set; }
-        public required string Password { get; set; }
+        public string? FName { get; set; }
+        public string? LName { get; set; }
+        public string? Gender { get; set; }
+        public DateOnly BDate { get; set; }
+        public string? Username { get; set; }
+        public string? Password { get; set; }
     }
 }

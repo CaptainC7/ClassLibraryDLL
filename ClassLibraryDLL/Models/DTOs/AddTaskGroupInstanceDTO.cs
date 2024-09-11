@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace ClassLibraryDLL.Models.DTOs
 {
-    public class AddTaskDTO
+    public class AddTaskGroupInstanceDTO
     {
-        public required string TaskName { get; set; } = "";
-        public required string Description { get; set; } = "";
         public required int TaskGroupID { get; set; }
-        public int? DependancyTaskID { get; set; }
+        public required int TaskListInstanceID { get; set; }
+        public required int AssignedTo { get; set; }
+        public required String? Status { get; set; }
     }
 }

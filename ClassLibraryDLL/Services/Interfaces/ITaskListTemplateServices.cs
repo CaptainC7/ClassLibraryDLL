@@ -11,9 +11,9 @@ namespace ClassLibraryDLL.Services.Interfaces
     public interface ITaskListTemplateServices
     {
         Task<IEnumerable<TaskListTemplateDTO>> GetAllTaskListTemplatesAsync();
-        Task<TaskListTemplateDTO> AddTemplate(TaskListTemplateDTO taskListTemplate);
-        Task<TaskListTemplateDTO> UpdateTemplate(int id, TaskListTemplateDTO taskListTemplateDTO);
-        Task<TaskListTemplate> GetTemplateByID(int id);
+        Task<TaskListTemplateDTO> AddTemplateAsync(AddTaskListTemplateDTO addTaskListTemplateDTO);
+        Task<TaskListTemplateDTO> UpdateTemplate(int id, AddTaskListTemplateDTO addTaskListTemplateDTO);
+        Task<TaskListTemplateDTO> GetTemplateByIDAsync(int ID);
         Task<bool> DeleteTemplateByID(int id);
     }
 }

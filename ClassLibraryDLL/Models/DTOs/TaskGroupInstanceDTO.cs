@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace ClassLibraryDLL.Models.DTOs
 {
-    public class TaskListInstanceDTO
+    public class TaskGroupInstanceDTO
     {
         public int ID { get; set; }
-        public int TaskListTemplateID { get; set; }
-        public DateTime StartDate { get; set; }
+        public int TaskGroupID { get; set; }
+        public TaskGroupDTO? TaskGroup { get; set; }
+        public int TaskListInstanceID { get; set; }
+        public TaskListInstanceDTO? TaskListInstance { get; set; }
         public int AssignedTo { get; set; }
-        public string? Status { get; set; }
-        public DateTime DueDate { get; set; }
-        public TaskListTemplateDTO? TaskListTemplate { get; set; }
         public PersonDTO? AssignedPerson { get; set; }
+        public String? Status { get; set; }
     }
 }

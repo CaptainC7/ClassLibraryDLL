@@ -9,9 +9,9 @@ namespace ClassLibraryDLL.Models.DTOs
     public class TaskGroupDTO
     {
         public int Id { get; set; }
-        public required string GroupName { get; set; }
-        public required int TaskListTemplateID { get; set; }
+        public string? GroupName { get; set; }
+        public int TaskListTemplateID { get; set; }
         public int GroupOrder { get; set; }
-        public TaskListTemplateDTO TaskListTemplate { get; set; }
+        public TaskListTemplateDTO? TaskListTemplate { get; set; }
     }
 }

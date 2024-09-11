@@ -9,10 +9,11 @@ namespace ClassLibraryDLL.Models
     public class TaskGroup
     {
         public int Id { get; set; }
-        public string GroupName { get; set; } = "";
+        public string? GroupName { get; set; }
         public int TaskListTemplateID { get; set; }
-        public TaskListTemplate TaskListTemplate { get; set; }
+        public TaskListTemplate? TaskListTemplate { get; set; }
         public int GroupOrder { get; set; }
-        public ICollection<Task> Tasks { get; set; }
+        public ICollection<Task>? Tasks { get; set; }
+        public ICollection<TaskGroupInstance> TaskGroupInstances { get; set; } = new List<TaskGroupInstance>();
     }
 }

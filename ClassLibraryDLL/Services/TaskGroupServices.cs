@@ -34,6 +34,7 @@ namespace ClassLibraryDLL.Services
 
                     TaskListTemplate = new TaskListTemplateDTO
                     {
+                        ID = taskListTemplateId,
                         TempName = TaskGroup.TaskListTemplate.TempName,
                         CreatedBy = TaskGroup.TaskListTemplate.CreatedBy,
                         CreatedDate = TaskGroup.TaskListTemplate.CreatedDate,

@@ -19,18 +19,13 @@ namespace ClassLibraryDLL.Services
             _dbContext = dBContext;
         }
 
-        //public async Task<IEnumerable<TaskListTemplate>> GetTemplates()
-        //{
-        //    var templates = await _dbContext.TaskListTemplate.ToListAsync();
-        //    return templates;
-        //}
-
         public async Task<IEnumerable<TaskListTemplateDTO>> GetAllTaskListTemplatesAsync()
         {
             var taskListTemplate = await _dbContext.TaskListTemplate
                 .Include(t => t.CreatedByPerson)
                 .Select(t => new TaskListTemplateDTO
                 {
+                    ID = t.ID,
                     TempName = t.TempName,
                     CreatedDate = t.CreatedDate,
                     CreatedBy = t.CreatedBy,
@@ -50,22 +45,28 @@ namespace ClassLibraryDLL.Services
             return taskListTemplate;
         }
 
-
-        public async Task<TaskListTemplateDTO> AddTemplate(TaskListTemplateDTO taskListTemplateDTO)
+        public async Task<TaskListTemplateDTO> AddTemplateAsync(AddTaskListTemplateDTO addTaskListTemplateDTO)
         {
             var template = new TaskListTemplate
             {
-                TempName = taskListTemplateDTO.TempName,
-                CreatedBy = taskListTemplateDTO.CreatedBy,
-                CreatedDate = taskListTemplateDTO.CreatedDate,
+                TempName = addTaskListTemplateDTO.TempName,
+                CreatedBy = addTaskListTemplateDTO.CreatedBy,
+                CreatedDate = addTaskListTemplateDTO.CreatedDate,
             };
 
             _dbContext.TaskListTemplate.Add(template);
             await _dbContext.SaveChangesAsync();
-            return taskListTemplateDTO;
+
+            return new TaskListTemplateDTO
+            {
+                ID = template.ID,
+                TempName = template.TempName,
+                CreatedBy = template.CreatedBy,
+                CreatedDate = template.CreatedDate,
+            };
         }
 
-        public async Task<TaskListTemplateDTO> UpdateTemplate(int id, TaskListTemplateDTO taskListTemplateDTO)
+        public async Task<TaskListTemplateDTO> UpdateTemplate(int id, AddTaskListTemplateDTO addTaskListTemplateDTO)
         {
             var template = _dbContext.TaskListTemplate.Find(id);
 
@@ -74,23 +75,50 @@ namespace ClassLibraryDLL.Services
                 return null;
             }
 
-            template.TempName = taskListTemplateDTO.TempName;
-            template.CreatedBy = taskListTemplateDTO.CreatedBy;
-            template.CreatedDate = taskListTemplateDTO.CreatedDate;
+            template.TempName = addTaskListTemplateDTO.TempName;
+            template.CreatedBy = addTaskListTemplateDTO.CreatedBy;
+            template.CreatedDate = addTaskListTemplateDTO.CreatedDate;
 
             await _dbContext.SaveChangesAsync();
 
-            return taskListTemplateDTO;
+            return new TaskListTemplateDTO
+            {
+                ID = template.ID,
+                TempName = template.TempName,
+                CreatedBy = template.CreatedBy,
+                CreatedDate = template.CreatedDate,
+            };
         }
 
-        public async Task<TaskListTemplate> GetTemplateByID(int ID)
+        public async Task<TaskListTemplateDTO> GetTemplateByIDAsync(int ID)
         {
-            var template = _dbContext.TaskListTemplate.Find(ID);
+            var template = await _dbContext.TaskListTemplate
+            .Include(t => t.CreatedByPerson)
+            .FirstOrDefaultAsync(t => t.ID == ID);
+
             if (template == null)
             {
-                return null;
+                return null;  // Handle null template appropriately
             }
-            return template;
+
+            return new TaskListTemplateDTO
+            {
+                ID = template.ID,
+                TempName = template.TempName,
+                CreatedBy = template.CreatedBy,
+                CreatedDate = template.CreatedDate,
+                CreatedByPerson = template.CreatedByPerson != null
+                    ? new PersonDTO
+                    {
+                        FName = template.CreatedByPerson.FName,
+                        LName = template.CreatedByPerson.LName,
+                        Gender = template.CreatedByPerson.Gender,
+                        BDate = template.CreatedByPerson.BDate,
+                        Username = template.CreatedByPerson.Username,
+                        Password = template.CreatedByPerson.Password,
+                    }
+                    : null
+            };
         }
 
         public async Task<bool> DeleteTemplateByID(int id)

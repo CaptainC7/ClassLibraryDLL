@@ -11,9 +11,9 @@ namespace ClassLibraryDLL.Services.Interfaces
     public interface ITaskListInstanceServices
     {
         Task<IEnumerable<TaskListInstanceDTO>> GetAllTaskListInstancesAsync();
-        //Task<TaskListInstanceDTO> AddTaskListInstance(TaskListInstanceDTO taskListInstanceDTO);
-        //Task<TaskListInstanceDTO> UpdateTaskListInstance(int id, TaskListInstanceDTO taskListInstanceDTO);
-        //Task<TaskListInstance> GetTaskListInstanceByID(int id);
-        //Task<bool> DeleteTaskListInstanceByID(int id);
+        Task<TaskListInstanceDTO> AddTaskListInstanceAsync(AddTaskListInstanceDTO addTaskListInstanceDTO);
+        Task<TaskListInstanceDTO> UpdateTaskListInstanceAsync(int id, AddTaskListInstanceDTO addTaskListInstanceDTO);
+        Task<TaskListInstanceDTO> GetTaskListInstanceByIDAsync(int id);
+        Task<bool> DeleteTaskListInstanceByIDAsync(int id);
     }
 }
