@@ -14,9 +14,11 @@ namespace ClassLibraryDLL.Services
     public class TaskListTemplateServices : ITaskListTemplateServices
     {
         private readonly ApplicationDBContext _dbContext;
-        public TaskListTemplateServices(ApplicationDBContext dBContext)
+        private readonly ITaskListTemplateHistoryServices _historyService;
+        public TaskListTemplateServices(ApplicationDBContext dBContext, ITaskListTemplateHistoryServices historyService)
         {
             _dbContext = dBContext;
+            _historyService = historyService;
         }
 
         public async Task<IEnumerable<TaskListTemplateDTO>> GetAllTaskListTemplatesAsync()
@@ -50,8 +52,8 @@ namespace ClassLibraryDLL.Services
             var template = new TaskListTemplate
             {
                 TempName = addTaskListTemplateDTO.TempName,
+                CreatedDate = DateTime.Now,
                 CreatedBy = addTaskListTemplateDTO.CreatedBy,
-                CreatedDate = addTaskListTemplateDTO.CreatedDate,
             };
 
             _dbContext.TaskListTemplate.Add(template);
@@ -66,18 +68,28 @@ namespace ClassLibraryDLL.Services
             };
         }
 
-        public async Task<TaskListTemplateDTO> UpdateTemplate(int id, AddTaskListTemplateDTO addTaskListTemplateDTO)
+        public async Task<TaskListTemplateDTO> UpdateTemplate(int id, UpdateTaskListTemplateDTO updateTaskListTemplateDTO, int userID)
         {
-            var template = _dbContext.TaskListTemplate.Find(id);
+            var template = await _dbContext.TaskListTemplate.FindAsync(id);
 
             if (template == null)
             {
                 return null;
             }
 
-            template.TempName = addTaskListTemplateDTO.TempName;
-            template.CreatedBy = addTaskListTemplateDTO.CreatedBy;
-            template.CreatedDate = addTaskListTemplateDTO.CreatedDate;
+            var historyDTO = new TaskListTemplateHistoryDTO
+            {
+                TaskListTemplateID = template.ID,
+                TempName = template.TempName,
+                CreatedBy = template.CreatedBy,
+                CreatedDate = template.CreatedDate,
+                ChangedBy = userID,
+                ChangedDate = DateTime.Now,
+                ChangedType = "Update"
+            };
+            await _historyService.AddHistoryRecord(historyDTO);
+
+            template.TempName = updateTaskListTemplateDTO.TempName;
 
             await _dbContext.SaveChangesAsync();
 
@@ -98,7 +110,7 @@ namespace ClassLibraryDLL.Services
 
             if (template == null)
             {
-                return null;  // Handle null template appropriately
+                return null;
             }
 
             return new TaskListTemplateDTO
@@ -121,13 +133,25 @@ namespace ClassLibraryDLL.Services
             };
         }
 
-        public async Task<bool> DeleteTemplateByID(int id)
+        public async Task<bool> DeleteTemplateByID(int id, int userID)
         {
             var template = await _dbContext.TaskListTemplate.FindAsync(id);
             if (template == null)
             {
                 return false;
             }
+
+            var historyDTO = new TaskListTemplateHistoryDTO
+            {
+                TaskListTemplateID = template.ID,
+                TempName = template.TempName,
+                CreatedBy = template.CreatedBy,
+                CreatedDate = template.CreatedDate,
+                ChangedBy = userID,
+                ChangedDate = DateTime.Now,
+                ChangedType = "Delete"
+            };
+            await _historyService.AddHistoryRecord(historyDTO);
 
             _dbContext.TaskListTemplate.Remove(template);
             await _dbContext.SaveChangesAsync();

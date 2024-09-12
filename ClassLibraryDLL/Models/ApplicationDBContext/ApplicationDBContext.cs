@@ -20,7 +20,10 @@ namespace ClassLibraryDLL.Models.ApplicationDBContext
         public DbSet<Task> Task { get; set; }
         public DbSet<TaskListInstance> TaskListInstance { get; set; }
         public DbSet<TaskGroupInstance> TaskGroupInstance { get; set; }
-        public DbSet<TaskInstance> taskInstance { get; set; }
+        public DbSet<TaskInstance> TaskInstance { get; set; }
+        public DbSet<TaskAttachment> TaskAttachment { get; set; }
+        public DbSet<PersonHistory> PersonHistory { get; set; }
+        public DbSet<TaskListTemplateHistory> TaskListTemplateHistory { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,19 +34,17 @@ namespace ClassLibraryDLL.Models.ApplicationDBContext
             .HasForeignKey(t => t.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);
 
-            // Configuring the relationship between TaskListInstance and TaskListTemplate
             modelBuilder.Entity<TaskListInstance>()
-                .HasOne(tli => tli.TaskListTemplate)
-                .WithMany(tlt => tlt.TaskListInstances)
-                .HasForeignKey(tli => tli.TaskListTemplateID)
-                .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(tli => tli.TaskListTemplate)
+            .WithMany(tlt => tlt.TaskListInstances)
+            .HasForeignKey(tli => tli.TaskListTemplateID)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            // Configuring the relationship between TaskListInstance and Person
             modelBuilder.Entity<TaskListInstance>()
-                .HasOne(tli => tli.AssignedPerson)
-                .WithMany(p => p.AssignedTaskListInstances)
-                .HasForeignKey(tli => tli.AssignedTo)
-                .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(tli => tli.AssignedPerson)
+            .WithMany(p => p.AssignedTaskListInstances)
+            .HasForeignKey(tli => tli.AssignedTo)
+            .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<TaskGroupInstance>()
             .HasOne(tgi => tgi.TaskGroup)
@@ -52,16 +53,16 @@ namespace ClassLibraryDLL.Models.ApplicationDBContext
             .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<TaskGroupInstance>()
-                .HasOne(tgi => tgi.TaskListInstance)
-                .WithMany(tli => tli.TaskGroupInstances)
-                .HasForeignKey(tgi => tgi.TaskListInstanceID)
-                .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(tgi => tgi.TaskListInstance)
+            .WithMany(tli => tli.TaskGroupInstances)
+            .HasForeignKey(tgi => tgi.TaskListInstanceID)
+            .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<TaskGroupInstance>()
-                .HasOne(tgi => tgi.AssignedPerson)
-                .WithMany(p => p.TaskGroupInstances)
-                .HasForeignKey(tgi => tgi.AssignedTo)
-                .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(tgi => tgi.AssignedPerson)
+            .WithMany(p => p.TaskGroupInstances)
+            .HasForeignKey(tgi => tgi.AssignedTo)
+            .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<TaskInstance>()
             .HasOne(ti => ti.Task)
@@ -69,9 +70,39 @@ namespace ClassLibraryDLL.Models.ApplicationDBContext
             .HasForeignKey(ti => ti.TaskID);
 
             modelBuilder.Entity<TaskInstance>()
-                .HasOne(ti => ti.TaskGroupInstance)
-                .WithMany(tgi => tgi.TaskInstances)
-                .HasForeignKey(ti => ti.TaskGroupInstanceID);
+            .HasOne(ti => ti.TaskGroupInstance)
+            .WithMany(tgi => tgi.TaskInstances)
+            .HasForeignKey(ti => ti.TaskGroupInstanceID);
+
+            modelBuilder.Entity<TaskAttachment>()
+            .HasOne(ta => ta.TaskInstance)
+            .WithMany(ti => ti.TaskAttachments)
+            .HasForeignKey(ta => ta.TaskInstanceID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskAttachment>()
+            .HasOne(ta => ta.UploadedByPerson)
+            .WithMany(p => p.UploadedTaskAttachments)
+            .HasForeignKey(ta => ta.UploadedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskListTemplateHistory>()
+            .HasOne(tlth => tlth.CreatedByPerson)
+            .WithMany(p => p.CreatedTaskListTemplateHistories)
+            .HasForeignKey(tlth => tlth.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskListTemplateHistory>()
+            .HasOne(tlth => tlth.ChangedByPerson)
+            .WithMany(p => p.ChangedTaskListTemplateHistories)
+            .HasForeignKey(tlth => tlth.ChangedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PersonHistory>()
+            .HasOne(ph => ph.ChangedByPerson)
+            .WithMany()
+            .HasForeignKey(ph => ph.ChangedBy)
+            .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
         }

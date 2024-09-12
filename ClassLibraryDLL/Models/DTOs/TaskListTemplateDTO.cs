@@ -10,7 +10,7 @@ namespace ClassLibraryDLL.Models.DTOs
     {
         public int ID {  get; set; }
         public string?  TempName { get; set; }
-        public DateOnly CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
         public int CreatedBy { get; set; }
         public PersonDTO? CreatedByPerson { get; set; }
     }

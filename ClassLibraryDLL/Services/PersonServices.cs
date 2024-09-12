@@ -15,9 +15,11 @@ namespace ClassLibraryDLL.Services
     public class PersonServices : IPersonServices
     {
         private readonly ApplicationDBContext _dbContext;
+        private readonly IPersonHistoryServices _personHistoryService;
 
-        public PersonServices(ApplicationDBContext dBContext) {
+        public PersonServices(ApplicationDBContext dBContext, IPersonHistoryServices personHistoryService) {
             _dbContext = dBContext;
+            _personHistoryService = personHistoryService;
         }
 
         public async Task<IEnumerable<Person>> GetUsers()
@@ -43,7 +45,7 @@ namespace ClassLibraryDLL.Services
             return personDTO;
         }
 
-        public async Task<PersonDTO> UpdatePerson(int id, PersonDTO personDTO)
+        public async Task<PersonDTO> UpdatePerson(int id, PersonDTO personDTO, int userID)
         {
             var user = _dbContext.Person.Find(id);
 
@@ -51,15 +53,30 @@ namespace ClassLibraryDLL.Services
                 return null;
             }
 
+            var personHistoryDTO = new PersonHistoryDTO
+            {
+                PersonID = user.ID,
+                FName = user.FName,
+                LName = user.LName,
+                Gender = user.Gender,
+                BDate = user.BDate,
+                Username = user.Username,
+                Password = user.Password,
+                ChangedBy = userID,
+                ChangeDate = DateTime.Now,
+                ChangeType = "Update"
+            };
+
+            await _personHistoryService.AddPersonHistoryAsync(personHistoryDTO);
+
             user.FName = personDTO.FName;
             user.LName = personDTO.LName;
             user.Gender = personDTO.Gender;
             user.BDate = personDTO.BDate;
             user.Username = personDTO.Username;
             user.Password = BCrypt.Net.BCrypt.EnhancedHashPassword(personDTO.Password, 13);
-            Console.WriteLine(BCrypt.Net.BCrypt.EnhancedVerify(personDTO.Password, user.Password));
-            await _dbContext.SaveChangesAsync();
 
+            await _dbContext.SaveChangesAsync();
 
             return personDTO;
         }
@@ -83,13 +100,29 @@ namespace ClassLibraryDLL.Services
             return person;
         }
 
-        public async Task<bool> DeletePersonByID(int id)
+        public async Task<bool> DeletePersonByID(int id, int userID)
         {
             var person = await _dbContext.Person.FindAsync(id);
             if(person == null)
             {
                 return false;
             }
+
+            var personHistoryDTO = new PersonHistoryDTO
+            {
+                PersonID = person.ID,
+                FName = person.FName,
+                LName = person.LName,
+                Gender = person.Gender,
+                BDate = person.BDate,
+                Username = person.Username,
+                Password = person.Password,
+                ChangedBy = userID,
+                ChangeDate = DateTime.Now,
+                ChangeType = "Delete"
+            };
+
+            await _personHistoryService.AddPersonHistoryAsync(personHistoryDTO);
 
             _dbContext.Person.Remove(person);
             await _dbContext.SaveChangesAsync();

@@ -12,8 +12,9 @@ namespace ClassLibraryDLL.Models
         public int TaskID { get; set; }
         public int TaskGroupInstanceID { get; set; }
         public string? Status { get; set; }
-        public DateTime TaskCompletionDate { get; set; }
+        public DateTime? TaskCompletionDate { get; set; }
         public Task? Task { get; set; }
         public TaskGroupInstance? TaskGroupInstance { get; set; }
+        public ICollection<TaskAttachment> TaskAttachments { get; set; } = new List<TaskAttachment>();
     }
 }

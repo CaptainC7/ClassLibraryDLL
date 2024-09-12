@@ -18,5 +18,8 @@ namespace ClassLibraryDLL.Models
         public ICollection<TaskListTemplate>? CreatedTaskListTemplates { get; set; } = new List<TaskListTemplate>();
         public ICollection<TaskListInstance> AssignedTaskListInstances { get; set; } = new List<TaskListInstance>();
         public ICollection<TaskGroupInstance> TaskGroupInstances { get; set; } = new List<TaskGroupInstance>();
+        public ICollection<TaskAttachment> UploadedTaskAttachments { get; set; } = new List<TaskAttachment>();
+        public ICollection<TaskListTemplateHistory> CreatedTaskListTemplateHistories { get; set; } = new List<TaskListTemplateHistory>();
+        public ICollection<TaskListTemplateHistory> ChangedTaskListTemplateHistories { get; set; } = new List<TaskListTemplateHistory>();
     }
 }

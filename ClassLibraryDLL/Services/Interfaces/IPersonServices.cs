@@ -13,9 +13,9 @@ namespace ClassLibraryDLL.Services.Interfaces
     {
         Task<IEnumerable<Person>> GetUsers();
         Task<PersonDTO> AddPerson(PersonDTO person);
-        Task<PersonDTO> UpdatePerson(int id, PersonDTO personDTO);
+        Task<PersonDTO> UpdatePerson(int id, PersonDTO personDTO, int userID);
         Task<Person> GetPersonByID(int id);
         bool CheckLogin(string username, string password);
-        Task<bool> DeletePersonByID(int id);
+        Task<bool> DeletePersonByID(int id, int userID);
     }
 }
