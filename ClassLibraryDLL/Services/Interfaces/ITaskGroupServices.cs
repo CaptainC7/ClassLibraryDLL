@@ -11,9 +11,9 @@ namespace ClassLibraryDLL.Services.Interfaces
     public interface ITaskGroupServices
     {
         Task<IEnumerable<TaskGroupDTO>> GetTaskGroupsByTemplateIdAsync(int taskListTemplateId);
-        Task<TaskGroupDTO> AddTaskGroupAsync(AddTaskGroupDTO addTaskGroupDTO);
-        Task<TaskGroupDTO> UpdateTaskGroupAsync(int id, AddTaskGroupDTO addTaskGroupDTO);
-        Task<bool> DeleteTaskGroupAsync(int id);
+        Task<TaskGroupDTO> AddTaskGroupAsync(AddTaskGroupDTO addTaskGroupDTO, int userID);
+        Task<TaskGroupDTO> UpdateTaskGroupAsync(int id, AddTaskGroupDTO addTaskGroupDTO, int userID);
+        Task<bool> DeleteTaskGroupAsync(int id, int userID);
     }
 
 }

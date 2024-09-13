@@ -12,7 +12,7 @@ namespace ClassLibraryDLL.Services.Interfaces
     public interface IPersonServices
     {
         Task<IEnumerable<Person>> GetUsers();
-        Task<PersonDTO> AddPerson(PersonDTO person);
+        Task<PersonDTO> AddPerson(PersonDTO person, int userID);
         Task<PersonDTO> UpdatePerson(int id, PersonDTO personDTO, int userID);
         Task<Person> GetPersonByID(int id);
         bool CheckLogin(string username, string password);

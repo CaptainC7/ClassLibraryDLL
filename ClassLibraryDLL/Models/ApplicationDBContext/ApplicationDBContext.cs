@@ -24,6 +24,8 @@ namespace ClassLibraryDLL.Models.ApplicationDBContext
         public DbSet<TaskAttachment> TaskAttachment { get; set; }
         public DbSet<PersonHistory> PersonHistory { get; set; }
         public DbSet<TaskListTemplateHistory> TaskListTemplateHistory { get; set; }
+        public DbSet<TaskGroupHistory> TaskGroupHistory { get; set; }
+        public DbSet<TaskHistory> TaskHistory { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -103,6 +105,27 @@ namespace ClassLibraryDLL.Models.ApplicationDBContext
             .WithMany()
             .HasForeignKey(ph => ph.ChangedBy)
             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskGroupHistory>()
+            .HasOne(tgh => tgh.ChangedByPerson)
+            .WithMany()
+            .HasForeignKey(tgh => tgh.ChangedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskHistory>()
+            .HasOne(th => th.ChangedByPerson)
+            .WithMany()
+            .HasForeignKey(th => th.ChangedBy);
+
+            modelBuilder.Entity<TaskHistory>()
+            .HasOne(th => th.TaskGroup)
+            .WithMany()
+            .HasForeignKey(th => th.TaskGroupID);
+
+            modelBuilder.Entity<TaskHistory>()
+            .HasOne(th => th.DependancyTask)
+            .WithMany()
+            .HasForeignKey(th => th.DependancyTaskID);
 
             base.OnModelCreating(modelBuilder);
         }

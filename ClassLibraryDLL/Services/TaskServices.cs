@@ -15,9 +15,11 @@ namespace ClassLibraryDLL.Services
     public class TaskServices : ITaskServices
     {
         private readonly ApplicationDBContext _dbContext;
-        public TaskServices(ApplicationDBContext dBContext)
+        private readonly ITaskHistoryServices _historyService;
+        public TaskServices(ApplicationDBContext dBContext, ITaskHistoryServices historyService)
         {
             _dbContext = dBContext;
+            _historyService = historyService;
         }
 
         public async Task<IEnumerable<TaskDTO>> GetTasksByTaskGroupIdAsync(int taskGroupId)
@@ -47,7 +49,7 @@ namespace ClassLibraryDLL.Services
             return tasks;
         }
 
-        public async Task<TaskDTO> AddTaskAsync(AddTaskDTO addTaskDTO)
+        public async Task<TaskDTO> AddTaskAsync(AddTaskDTO addTaskDTO, int userID)
         {
             var maxTaskOrder = await _dbContext.Task
             .Where(task => task.TaskGroupID == addTaskDTO.TaskGroupID)
@@ -65,6 +67,21 @@ namespace ClassLibraryDLL.Services
             _dbContext.Task.Add(task);
             await _dbContext.SaveChangesAsync();
 
+            var taskHistoryDTO = new TaskHistoryDTO
+            {
+                TaskID = task.ID,
+                TaskName = task.TaskName,
+                Description = task.Description,
+                TaskGroupID = task.TaskGroupID,
+                TaskOrder = task.TaskOrder,
+                DependancyTaskID = task.DependancyTaskID,
+                ChangedBy = userID,
+                ChangedDate = DateTime.Now,
+                ChangedType = "Create"
+            };
+
+            await _historyService.AddTaskHistoryAsync(taskHistoryDTO);
+
             var newTaskDTO = new TaskDTO
             {
                 ID = task.ID,
@@ -78,7 +95,7 @@ namespace ClassLibraryDLL.Services
             return newTaskDTO;
         }
 
-        public async Task<TaskDTO> UpdateTaskAsync(int id, AddTaskDTO addTaskDTO)
+        public async Task<TaskDTO> UpdateTaskAsync(int id, AddTaskDTO addTaskDTO, int userID)
         {
             var task = await _dbContext.Task.FindAsync(id);
 
@@ -86,6 +103,21 @@ namespace ClassLibraryDLL.Services
             {
                 throw new KeyNotFoundException("Task not found");
             }
+
+            var taskHistoryDTO = new TaskHistoryDTO
+            {
+                TaskID = task.ID,
+                TaskName = task.TaskName,
+                Description = task.Description,
+                TaskGroupID = task.TaskGroupID,
+                TaskOrder = task.TaskOrder,
+                DependancyTaskID = task.DependancyTaskID,
+                ChangedBy = userID,
+                ChangedDate = DateTime.Now,
+                ChangedType = "Update"
+            };
+
+            await _historyService.AddTaskHistoryAsync(taskHistoryDTO);
 
             task.TaskName = addTaskDTO.TaskName;
             task.Description = addTaskDTO.Description;
@@ -105,31 +137,32 @@ namespace ClassLibraryDLL.Services
             };
         }
 
-        //public async Task<bool> DeleteTaskByID(int id)
-        //{
-        //    var task = await _dbContext.Task.FindAsync(id);
-        //    if (task == null)
-        //    {
-        //        return false;
-        //    }
-
-        //    _dbContext.Task.Remove(task);
-        //    await _dbContext.SaveChangesAsync();
-        //    return true;
-        //}
-
-        public async Task<bool> DeleteTaskAsync(int id)
+        public async Task<bool> DeleteTaskAsync(int id, int userID)
         {
             var task = await _dbContext.Task.FindAsync(id);
             if (task == null)
             {
-                return false; // Task not found
+                return false;
             }
+
+            var taskHistoryDTO = new TaskHistoryDTO
+            {
+                TaskID = task.ID,
+                TaskName = task.TaskName,
+                Description = task.Description,
+                TaskGroupID = task.TaskGroupID,
+                TaskOrder = task.TaskOrder,
+                DependancyTaskID = task.DependancyTaskID,
+                ChangedBy = userID,
+                ChangedDate = DateTime.Now,
+                ChangedType = "Delete"
+            };
+
+            await _historyService.AddTaskHistoryAsync(taskHistoryDTO);
 
             _dbContext.Task.Remove(task);
             await _dbContext.SaveChangesAsync();
 
-            // Reorder tasks in the same group
             await ReorderTasksAsync(task.TaskGroupID);
 
             return true;

@@ -15,9 +15,11 @@ namespace ClassLibraryDLL.Services
     public class TaskGroupServices : ITaskGroupServices
     {
         private readonly ApplicationDBContext _dbContext;
-        public TaskGroupServices(ApplicationDBContext dBContext)
+        private readonly ITaskGroupHistoryServices _historyService;
+        public TaskGroupServices(ApplicationDBContext dBContext, ITaskGroupHistoryServices historyServices)
         {
             _dbContext = dBContext;
+            _historyService = historyServices;
         }
 
         public async Task<IEnumerable<TaskGroupDTO>> GetTaskGroupsByTemplateIdAsync(int taskListTemplateId)
@@ -45,7 +47,7 @@ namespace ClassLibraryDLL.Services
             return taskGroups;
         }
 
-        public async Task<TaskGroupDTO> AddTaskGroupAsync(AddTaskGroupDTO addTaskGroupDTO)
+        public async Task<TaskGroupDTO> AddTaskGroupAsync(AddTaskGroupDTO addTaskGroupDTO, int userID)
         {
             var maxGroupOrder = await _dbContext.TaskGroup
             .Where(tg => tg.TaskListTemplateID == addTaskGroupDTO.TaskListTemplateID)
@@ -61,6 +63,19 @@ namespace ClassLibraryDLL.Services
             _dbContext.TaskGroup.Add(taskGroup);
             await _dbContext.SaveChangesAsync();
 
+            var taskGroupHistoryDTO = new TaskGroupHistoryDTO
+            {
+                TaskGroupID = taskGroup.Id,
+                GroupName = taskGroup.GroupName,
+                TaskListTemplateID = taskGroup.TaskListTemplateID,
+                GroupOrder = taskGroup.GroupOrder,
+                ChangedBy = userID,
+                ChangedDate = DateTime.Now,
+                ChangedType = "Create"
+            };
+
+            await _historyService.AddTaskGroupHistoryAsync(taskGroupHistoryDTO);
+
             var newTaskGroupDTO = new TaskGroupDTO
             {
                 Id=taskGroup.Id,
@@ -72,7 +87,7 @@ namespace ClassLibraryDLL.Services
             return newTaskGroupDTO;
         }
 
-        public async Task<TaskGroupDTO> UpdateTaskGroupAsync(int id, AddTaskGroupDTO addTaskGroupDTO)
+        public async Task<TaskGroupDTO> UpdateTaskGroupAsync(int id, AddTaskGroupDTO addTaskGroupDTO, int userID)
         {
             var taskGroup = await _dbContext.TaskGroup.FindAsync(id);
 
@@ -80,6 +95,19 @@ namespace ClassLibraryDLL.Services
             {
                 throw new KeyNotFoundException("TaskGroup not found");
             }
+
+            var taskGroupHistoryDTO = new TaskGroupHistoryDTO
+            {
+                TaskGroupID = taskGroup.Id,
+                GroupName = taskGroup.GroupName,
+                TaskListTemplateID = taskGroup.TaskListTemplateID,
+                GroupOrder = taskGroup.GroupOrder,
+                ChangedBy = userID,
+                ChangedDate = DateTime.Now,
+                ChangedType = "Update"
+            };
+
+            await _historyService.AddTaskGroupHistoryAsync(taskGroupHistoryDTO);
 
             taskGroup.GroupName = addTaskGroupDTO.GroupName;
             taskGroup.TaskListTemplateID = addTaskGroupDTO.TaskListTemplateID;
@@ -96,32 +124,31 @@ namespace ClassLibraryDLL.Services
             };
         }
 
-        //public async Task<bool> DeleteTaskGroupByID(int id)
-        //{
-        //    var taskGroup = await _dbContext.TaskGroup.FindAsync(id);
-        //    if (taskGroup == null)
-        //    {
-        //        return false;
-        //    }
-
-        //    _dbContext.TaskGroup.Remove(taskGroup);
-        //    await _dbContext.SaveChangesAsync();
-        //    return true;
-        //}
-
-        public async Task<bool> DeleteTaskGroupAsync(int id)
+        public async Task<bool> DeleteTaskGroupAsync(int id, int userID)
         {
-            var task = await _dbContext.TaskGroup.FindAsync(id);
-            if (task == null)
+            var taskGroup = await _dbContext.TaskGroup.FindAsync(id);
+            if (taskGroup == null)
             {
-                return false; // Task not found
+                return false;
             }
 
-            _dbContext.TaskGroup.Remove(task);
+            var taskGroupHistoryDTO = new TaskGroupHistoryDTO
+            {
+                TaskGroupID = taskGroup.Id,
+                GroupName = taskGroup.GroupName,
+                TaskListTemplateID = taskGroup.TaskListTemplateID,
+                GroupOrder = taskGroup.GroupOrder,
+                ChangedBy = userID,
+                ChangedDate = DateTime.Now,
+                ChangedType = "Delete"
+            };
+
+            await _historyService.AddTaskGroupHistoryAsync(taskGroupHistoryDTO);
+
+            _dbContext.TaskGroup.Remove(taskGroup);
             await _dbContext.SaveChangesAsync();
 
-            // Reorder tasks in the same group
-            await ReorderTasksAsync(task.TaskListTemplateID);
+            await ReorderTasksAsync(taskGroup.TaskListTemplateID);
 
             return true;
         }

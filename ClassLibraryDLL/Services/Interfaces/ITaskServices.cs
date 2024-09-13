@@ -10,8 +10,8 @@ namespace ClassLibraryDLL.Services.Interfaces
     public interface ITaskServices
     {
         Task<IEnumerable<TaskDTO>> GetTasksByTaskGroupIdAsync(int taskGroupID);
-        Task<TaskDTO> AddTaskAsync(AddTaskDTO addTaskDTO);
-        Task<TaskDTO> UpdateTaskAsync(int id, AddTaskDTO addTaskDTO);
-        Task<bool> DeleteTaskAsync(int id);
+        Task<TaskDTO> AddTaskAsync(AddTaskDTO addTaskDTO, int userID);
+        Task<TaskDTO> UpdateTaskAsync(int id, AddTaskDTO addTaskDTO, int userID);
+        Task<bool> DeleteTaskAsync(int id, int userID);
     }
 }

@@ -28,7 +28,7 @@ namespace ClassLibraryDLL.Services
             return users;
         }
 
-        public async Task<PersonDTO> AddPerson(PersonDTO personDTO)
+        public async Task<PersonDTO> AddPerson(PersonDTO personDTO, int userID)
         {
             var person = new Person
             {
@@ -42,12 +42,29 @@ namespace ClassLibraryDLL.Services
 
             _dbContext.Person.Add(person);
             await _dbContext.SaveChangesAsync();
+
+            var personHistoryDTO = new PersonHistoryDTO
+            {
+                PersonID = person.ID,
+                FName = person.FName,
+                LName = person.LName,
+                Gender = person.Gender,
+                BDate = person.BDate,
+                Username = person.Username,
+                Password = person.Password,
+                ChangedBy = userID,
+                ChangeDate = DateTime.Now,
+                ChangeType = "Create"
+            };
+
+            await _personHistoryService.AddPersonHistoryAsync(personHistoryDTO);
+
             return personDTO;
         }
 
         public async Task<PersonDTO> UpdatePerson(int id, PersonDTO personDTO, int userID)
         {
-            var user = _dbContext.Person.Find(id);
+            var user = await _dbContext.Person.FindAsync(id);
 
             if (user == null) {
                 return null;

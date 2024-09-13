@@ -59,6 +59,18 @@ namespace ClassLibraryDLL.Services
             _dbContext.TaskListTemplate.Add(template);
             await _dbContext.SaveChangesAsync();
 
+            var historyDTO = new TaskListTemplateHistoryDTO
+            {
+                TaskListTemplateID = template.ID,
+                TempName = template.TempName,
+                CreatedBy = template.CreatedBy,
+                CreatedDate = template.CreatedDate,
+                ChangedBy = template.CreatedBy,
+                ChangedDate = DateTime.Now,
+                ChangedType = "Create"
+            };
+            await _historyService.AddHistoryRecord(historyDTO);
+
             return new TaskListTemplateDTO
             {
                 ID = template.ID,
@@ -90,7 +102,6 @@ namespace ClassLibraryDLL.Services
             await _historyService.AddHistoryRecord(historyDTO);
 
             template.TempName = updateTaskListTemplateDTO.TempName;
-
             await _dbContext.SaveChangesAsync();
 
             return new TaskListTemplateDTO

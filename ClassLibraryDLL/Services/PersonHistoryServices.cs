@@ -32,6 +32,7 @@ namespace ClassLibraryDLL.Services
                 BDate = personHistoryDTO.BDate,
                 Username = personHistoryDTO.Username,
                 Password = personHistoryDTO.Password,
+                ChangedBy = personHistoryDTO.ChangedBy,
                 ChangeDate = personHistoryDTO.ChangeDate,
                 ChangeType = personHistoryDTO.ChangeType
             };
